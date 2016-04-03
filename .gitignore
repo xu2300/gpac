@@ -60,12 +60,12 @@ bld/
 *.so
 *.dylib
 *.dll
-*.lai 
-*.la 
-*.a 
+*.lai
+*.la
+*.a
 *.lib
-*.exe 
-*.out 
+*.exe
+*.out
 *.app
 *.apk
 *.dmg
@@ -75,7 +75,7 @@ bld/
 .depend
 .deps/
 
-#GPAC specific 
+#GPAC specific
 config.h
 include/gpac/revision.h
 include/gpac/revision.h.new
@@ -88,4 +88,4 @@ gpac.pc
 tests/external_media/
 tests/results/
 
-extra_lib/include/openssl/  
+extra_lib/include/openssl/
