@@ -57,7 +57,6 @@ extern "C" {
 
 #include <gpac/tools.h>
 
-#ifndef GPAC_DISABLE_MCRYPT
 
 
 /*max number of possible key sizes for all supported modes*/
@@ -66,17 +65,20 @@ extern "C" {
 /*crypto lib handler*/
 typedef struct _tag_crypt_stream GF_Crypt;
 
-/*supported modes (case insensitive): "CBC", "CFB", "CTR", "ECB", "nCFB", "nOFB", "OFB", "STREAM"*/
-/*supported algos (case insensitive):
-	"AES-128" == "Rijndael-128"
-	"AES-192" == "Rijndael-192"
-	"AES-256" == "Rijndael-256"
-	"DES", "3DES"
-*/
+#define GF_AES_128_KEYSIZE 16
+
+typedef enum {
+	GF_CBC = 0,
+	GF_CTR = 1
+} GF_CRYPTO_MODE;
+
+typedef enum {
+	GF_AES_128 = 0
+} GF_CRYPTO_ALGO;
 
 
 /*opens crypto context - algo and mode SHALL NOT be NULL*/
-GF_Crypt *gf_crypt_open(const char *algorithm, const char *mode);
+GF_Crypt *gf_crypt_open(GF_CRYPTO_ALGO algorithm, GF_CRYPTO_MODE mode);
 /*close crypto context*/
 void gf_crypt_close(GF_Crypt *gfc);
 
@@ -88,35 +90,6 @@ GF_Err gf_crypt_set_state(GF_Crypt *gfc, const void *iv, int size);
 The size will hold the size of the state and the state must have enough bytes to hold it.
 */
 GF_Err gf_crypt_get_state(GF_Crypt *gfc, void *iv, int *size);
-/*Returns 1 if the algorithm is a block algorithm or 0 if it is a stream algorithm.*/
-Bool gf_crypt_is_block_algorithm(GF_Crypt *gfc);
-/*Returns 1 if the mode is for use with block algorithms, otherwise it returns 0.*/
-Bool gf_crypt_is_block_algorithm_mode(GF_Crypt *gfc);
-/*Returns 1 if the mode outputs blocks of bytes or 0 if it outputs bytes. (eg. 1 for cbc and ecb, and 0 for cfb and stream)*/
-Bool gf_crypt_is_block_mode(GF_Crypt *gfc);
-/*Returns the block size of the algorithm specified by the encryption descriptor in bytes.*/
-u32 gf_crypt_get_block_size(GF_Crypt *gfc);
-/*Returns the maximum supported key size of the algorithm specified by the encryption descriptor in bytes.*/
-u32 gf_crypt_get_key_size(GF_Crypt *gfc);
-/*Returns the number of supported key sizes.
-@keys: array of at least MAX_KEY_SIZES size - will hold the supported sizes*/
-u32 gf_crypt_get_supported_key_sizes(GF_Crypt *gfc, u32 *key_sizes);
-/*Returns size (in bytes) of the IV of the algorithm specified for the context.
-If it is '0' then the IV is ignored in that algorithm.
-IV is used in CBC, CFB, OFB modes, and in some algorithms in STREAM mode.
-*/
-u32 gf_crypt_get_iv_size(GF_Crypt *gfc);
-/*Returns 1 if the mode needs an IV, 0 otherwise.
-Some 'stream' algorithms may need an IV even if the mode itself does not need an IV.
-*/
-Bool gf_crypt_mode_has_iv(GF_Crypt *gfc);
-
-/*guess what these do...*/
-const char *gf_crypt_get_algorithm_name(GF_Crypt *gfc);
-u32 gf_crypt_get_algorithm_version(GF_Crypt *gfc);
-const char *gf_crypt_get_mode_name(GF_Crypt *gfc);
-u32 gf_crypt_get_mode_version(GF_Crypt *gfc);
-
 
 /*
 This function initializes all buffers for the specified context
@@ -128,9 +101,7 @@ calling gf_crypt_get_key_size() and every value smaller than this is legal.
 	for encryption/decryption.
 After calling this function you can use the descriptor for encryption or decryption (not both).
 */
-GF_Err gf_crypt_init(GF_Crypt *gfc, void *key, u32 lenofkey, const void *IV);
-/*releases context buffers - you may call gf_crypt_init after that, or gf_crypt_close*/
-void gf_crypt_deinit(GF_Crypt *gfc);
+GF_Err gf_crypt_init(GF_Crypt *gfc, void *key, const void *IV);
 /*changes key and IV*/
 GF_Err gf_crypt_set_key(GF_Crypt *gfc, void *key, u32 keysize, const void *iv);
 
@@ -144,17 +115,6 @@ GF_Err gf_crypt_encrypt(GF_Crypt *gfc, void *plaintext, int len);
 /*decryption function. It is almost the same with gf_crypt_generic.*/
 GF_Err gf_crypt_decrypt(GF_Crypt *gfc, void *ciphertext, int len);
 
-/*various queries on both modes and algo*/
-u32 gf_crypt_str_get_algorithm_version(const char *algorithm);
-u32 gf_crypt_str_get_mode_version(const char *mode);
-Bool gf_crypt_str_is_block_algorithm(const char *algorithm);
-Bool gf_crypt_str_is_block_algorithm_mode(const char *algorithm);
-Bool gf_crypt_str_is_block_mode(const char *mode);
-u32 gf_crypt_str_module_get_algo_block_size(const char *algorithm);
-u32 gf_crypt_str_module_get_algo_key_size(const char *algorithm);
-u32 gf_crypt_str_get_algo_supported_key_sizes(const char *algorithm, int *keys);
-
-#endif /*GPAC_DISABLE_MCRYPT*/
 
 
 #ifdef __cplusplus

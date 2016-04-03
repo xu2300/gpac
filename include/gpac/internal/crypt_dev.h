@@ -32,7 +32,6 @@ extern "C" {
 
 #include <gpac/crypt.h>
 
-#ifndef GPAC_DISABLE_MCRYPT
 
 /*the samllest version of the lib: only AES-128-CTR and AES-CBC supported*/
 #define GPAC_CRYPT_ISMA_ONLY
@@ -46,58 +45,34 @@ typedef GF_Err (*mcrypt_docrypt) (void *, const void *, int);
 /*private - do not use*/
 typedef struct _tag_crypt_stream
 {
-	const char *algo_name;
-	u32 algo_version;
-	const char *mode_name;
+	GF_CRYPTO_ALGO algo;
+	GF_CRYPTO_MODE mode;
 	u32 mode_version;
 
-	/* Holds the algorithm's internal key */
-	char *akey;
-	/* holds the mode's internal buffers */
-	char *abuf;
+	/* Internam context*/
+	void* context;
 	/* holds the key */
 	char *keyword_given;
 
 	/*all below are static vars for mode and algo - sizes are in bytes*/
 
 	/*modes access*/
-	GF_Err (*_init_mcrypt) (void *, void *, int, void *, int);
-	void (*_end_mcrypt) (void *);
-	GF_Err (*_mcrypt) (void *, void *, int, int, void *, mcryptfunc func, mcryptfunc func2);
-	GF_Err (*_mdecrypt) (void *, void *, int, int, void *, mcryptfunc func, mcryptfunc func2);
-	GF_Err (*_mcrypt_set_state) (void *, void *, int );
-	GF_Err (*_mcrypt_get_state) (void *, void *, int *);
-	/*algo access*/
-	void *a_encrypt;
-	void *a_decrypt;
-	void *a_set_key;
+	GF_Err (*_init_crypt) (GF_Crypt*, void * , const void *);
+	void(*_deinit_crypt) (GF_Crypt*);
+	void (*_end_crypt) (GF_Crypt*);
+	void (* _set_key)(GF_Crypt*);
+	GF_Err (*_crypt) (GF_Crypt*, void *, int);
+	GF_Err (*_decrypt) (GF_Crypt*, void *, int);
+	GF_Err (*_set_state) (GF_Crypt*, void *, int );
+	GF_Err (*_get_state) (GF_Crypt*, void *, int *);
 
-	u32 algo_size;
 	u32 algo_block_size;
 	u32 key_size;
-	u32 num_key_sizes;
-	u32 key_sizes[MAX_KEY_SIZES];
 	u32 algo_IV_size;
 
 	u32 mode_size;
 	Bool is_block_algo, is_block_algo_mode, is_block_mode, has_IV;
 } GF_CryptStream;
-
-/*modes*/
-void gf_crypt_register_cbc(GF_Crypt *td);
-void gf_crypt_register_cfb(GF_Crypt *td);
-void gf_crypt_register_ctr(GF_Crypt *td);
-void gf_crypt_register_ecb(GF_Crypt *td);
-void gf_crypt_register_ncfb(GF_Crypt *td);
-void gf_crypt_register_nofb(GF_Crypt *td);
-void gf_crypt_register_ofb(GF_Crypt *td);
-void gf_crypt_register_stream(GF_Crypt *td);
-/*algos*/
-void gf_crypt_register_des(GF_Crypt *td);
-void gf_crypt_register_3des(GF_Crypt *td);
-void gf_crypt_register_rijndael_128(GF_Crypt *td);
-void gf_crypt_register_rijndael_192(GF_Crypt *td);
-void gf_crypt_register_rijndael_256(GF_Crypt *td);
 
 
 #define rotl32(x,n)   (((x) << ((u32)(n))) | ((x) >> (32 - (u32)(n))))
@@ -148,7 +123,6 @@ void memxor(unsigned char *o1, unsigned char *o2, int length)
 
 #define Bzero(x, y) memset(x, 0, y)
 
-#endif /*GPAC_DISABLE_MCRYPT*/
 
 #ifdef __cplusplus
 }
