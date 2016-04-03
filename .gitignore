@@ -85,5 +85,3 @@ extra_lib/include/ios/
 config.mak
 configure-stamp
 gpac.pc
-
-extra_lib/include/openssl/  
