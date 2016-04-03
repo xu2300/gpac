@@ -88,3 +88,4 @@ gpac.pc
 tests/external_media/
 tests/results/
 
+extra_lib/include/openssl/  
