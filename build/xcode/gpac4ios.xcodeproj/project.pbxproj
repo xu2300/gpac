@@ -161,20 +161,8 @@
 		71CCF2C21277045100339E12 /* lsr_dec.c in Sources */ = {isa = PBXBuildFile; fileRef = 71CCF1BA1277045100339E12 /* lsr_dec.c */; };
 		71CCF2C31277045100339E12 /* lsr_enc.c in Sources */ = {isa = PBXBuildFile; fileRef = 71CCF1BB1277045100339E12 /* lsr_enc.c */; };
 		71CCF2C41277045100339E12 /* lsr_tables.c in Sources */ = {isa = PBXBuildFile; fileRef = 71CCF1BC1277045100339E12 /* lsr_tables.c */; };
-		71CCF2C51277045100339E12 /* cbc.c in Sources */ = {isa = PBXBuildFile; fileRef = 71CCF1BE1277045100339E12 /* cbc.c */; };
-		71CCF2C61277045100339E12 /* cfb.c in Sources */ = {isa = PBXBuildFile; fileRef = 71CCF1BF1277045100339E12 /* cfb.c */; };
-		71CCF2C71277045100339E12 /* ctr.c in Sources */ = {isa = PBXBuildFile; fileRef = 71CCF1C01277045100339E12 /* ctr.c */; };
-		71CCF2C81277045100339E12 /* des.c in Sources */ = {isa = PBXBuildFile; fileRef = 71CCF1C11277045100339E12 /* des.c */; };
-		71CCF2C91277045100339E12 /* ecb.c in Sources */ = {isa = PBXBuildFile; fileRef = 71CCF1C21277045100339E12 /* ecb.c */; };
 		71CCF2CA1277045100339E12 /* g_crypt.c in Sources */ = {isa = PBXBuildFile; fileRef = 71CCF1C31277045100339E12 /* g_crypt.c */; };
-		71CCF2CB1277045100339E12 /* ncfb.c in Sources */ = {isa = PBXBuildFile; fileRef = 71CCF1C41277045100339E12 /* ncfb.c */; };
-		71CCF2CC1277045100339E12 /* nofb.c in Sources */ = {isa = PBXBuildFile; fileRef = 71CCF1C51277045100339E12 /* nofb.c */; };
-		71CCF2CD1277045100339E12 /* ofb.c in Sources */ = {isa = PBXBuildFile; fileRef = 71CCF1C61277045100339E12 /* ofb.c */; };
-		71CCF2CE1277045100339E12 /* rijndael-128.c in Sources */ = {isa = PBXBuildFile; fileRef = 71CCF1C71277045100339E12 /* rijndael-128.c */; };
-		71CCF2CF1277045100339E12 /* rijndael-192.c in Sources */ = {isa = PBXBuildFile; fileRef = 71CCF1C81277045100339E12 /* rijndael-192.c */; };
-		71CCF2D01277045100339E12 /* rijndael-256.c in Sources */ = {isa = PBXBuildFile; fileRef = 71CCF1C91277045100339E12 /* rijndael-256.c */; };
-		71CCF2D21277045100339E12 /* stream.c in Sources */ = {isa = PBXBuildFile; fileRef = 71CCF1CB1277045100339E12 /* stream.c */; };
-		71CCF2D31277045100339E12 /* tripledes.c in Sources */ = {isa = PBXBuildFile; fileRef = 71CCF1CC1277045100339E12 /* tripledes.c */; };
+		71CCF2CA1277045100339E12 /* g_crypt_openssl.c in Sources */ = {isa = PBXBuildFile; fileRef = 71CCF1C31277045100339E12 /* g_crypt_openssl.c */; };
 		71CCF2D41277045100339E12 /* av_parsers.c in Sources */ = {isa = PBXBuildFile; fileRef = 71CCF1CE1277045100339E12 /* av_parsers.c */; };
 		71CCF2D51277045100339E12 /* avilib.c in Sources */ = {isa = PBXBuildFile; fileRef = 71CCF1CF1277045100339E12 /* avilib.c */; };
 		71CCF2D61277045100339E12 /* dvb_mpe.c in Sources */ = {isa = PBXBuildFile; fileRef = 71CCF1D01277045100339E12 /* dvb_mpe.c */; };
@@ -704,20 +692,8 @@
 		71CCF1BA1277045100339E12 /* lsr_dec.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lsr_dec.c; sourceTree = "<group>"; };
 		71CCF1BB1277045100339E12 /* lsr_enc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lsr_enc.c; sourceTree = "<group>"; };
 		71CCF1BC1277045100339E12 /* lsr_tables.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lsr_tables.c; sourceTree = "<group>"; };
-		71CCF1BE1277045100339E12 /* cbc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = cbc.c; sourceTree = "<group>"; };
-		71CCF1BF1277045100339E12 /* cfb.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = cfb.c; sourceTree = "<group>"; };
-		71CCF1C01277045100339E12 /* ctr.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ctr.c; sourceTree = "<group>"; };
-		71CCF1C11277045100339E12 /* des.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = des.c; sourceTree = "<group>"; };
-		71CCF1C21277045100339E12 /* ecb.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ecb.c; sourceTree = "<group>"; };
 		71CCF1C31277045100339E12 /* g_crypt.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = g_crypt.c; sourceTree = "<group>"; };
-		71CCF1C41277045100339E12 /* ncfb.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ncfb.c; sourceTree = "<group>"; };
-		71CCF1C51277045100339E12 /* nofb.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = nofb.c; sourceTree = "<group>"; };
-		71CCF1C61277045100339E12 /* ofb.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ofb.c; sourceTree = "<group>"; };
-		71CCF1C71277045100339E12 /* rijndael-128.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "rijndael-128.c"; sourceTree = "<group>"; };
-		71CCF1C81277045100339E12 /* rijndael-192.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "rijndael-192.c"; sourceTree = "<group>"; };
-		71CCF1C91277045100339E12 /* rijndael-256.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = "rijndael-256.c"; sourceTree = "<group>"; };
-		71CCF1CB1277045100339E12 /* stream.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = stream.c; sourceTree = "<group>"; };
-		71CCF1CC1277045100339E12 /* tripledes.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = tripledes.c; sourceTree = "<group>"; };
+		71CCF1C31277045100339E12 /* g_crypt_openssl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = g_crypt_openssl.c; sourceTree = "<group>"; };
 		71CCF1CE1277045100339E12 /* av_parsers.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = av_parsers.c; sourceTree = "<group>"; };
 		71CCF1CF1277045100339E12 /* avilib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = avilib.c; sourceTree = "<group>"; };
 		71CCF1D01277045100339E12 /* dvb_mpe.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dvb_mpe.c; sourceTree = "<group>"; };
@@ -1470,20 +1446,8 @@
 		71CCF1BD1277045100339E12 /* mcrypt */ = {
 			isa = PBXGroup;
 			children = (
-				71CCF1BE1277045100339E12 /* cbc.c */,
-				71CCF1BF1277045100339E12 /* cfb.c */,
-				71CCF1C01277045100339E12 /* ctr.c */,
-				71CCF1C11277045100339E12 /* des.c */,
-				71CCF1C21277045100339E12 /* ecb.c */,
 				71CCF1C31277045100339E12 /* g_crypt.c */,
-				71CCF1C41277045100339E12 /* ncfb.c */,
-				71CCF1C51277045100339E12 /* nofb.c */,
-				71CCF1C61277045100339E12 /* ofb.c */,
-				71CCF1C71277045100339E12 /* rijndael-128.c */,
-				71CCF1C81277045100339E12 /* rijndael-192.c */,
-				71CCF1C91277045100339E12 /* rijndael-256.c */,
-				71CCF1CB1277045100339E12 /* stream.c */,
-				71CCF1CC1277045100339E12 /* tripledes.c */,
+				71CCF1C41277045100339E12 /* g_crypt_openssl.c */,
 			);
 			name = mcrypt;
 			path = ../../src/mcrypt;
@@ -2392,20 +2356,8 @@
 				71CCF2C21277045100339E12 /* lsr_dec.c in Sources */,
 				71CCF2C31277045100339E12 /* lsr_enc.c in Sources */,
 				71CCF2C41277045100339E12 /* lsr_tables.c in Sources */,
-				71CCF2C51277045100339E12 /* cbc.c in Sources */,
-				71CCF2C61277045100339E12 /* cfb.c in Sources */,
-				71CCF2C71277045100339E12 /* ctr.c in Sources */,
-				71CCF2C81277045100339E12 /* des.c in Sources */,
-				71CCF2C91277045100339E12 /* ecb.c in Sources */,
 				71CCF2CA1277045100339E12 /* g_crypt.c in Sources */,
-				71CCF2CB1277045100339E12 /* ncfb.c in Sources */,
-				71CCF2CC1277045100339E12 /* nofb.c in Sources */,
-				71CCF2CD1277045100339E12 /* ofb.c in Sources */,
-				71CCF2CE1277045100339E12 /* rijndael-128.c in Sources */,
-				71CCF2CF1277045100339E12 /* rijndael-192.c in Sources */,
-				71CCF2D01277045100339E12 /* rijndael-256.c in Sources */,
-				71CCF2D21277045100339E12 /* stream.c in Sources */,
-				71CCF2D31277045100339E12 /* tripledes.c in Sources */,
+				71CCF2CB1277045100339E12 /* g_crypt_openssl.c in Sources */,
 				71CCF2D41277045100339E12 /* av_parsers.c in Sources */,
 				71CCF2D51277045100339E12 /* avilib.c in Sources */,
 				71CCF2D61277045100339E12 /* dvb_mpe.c in Sources */,
