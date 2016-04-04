@@ -98,7 +98,7 @@ GF_Crypt *gf_crypt_open(GF_CRYPTO_ALGO algorithm, GF_CRYPTO_MODE mode);
 void gf_crypt_close(GF_Crypt *gfc);
 
 /* sets the state of the algorithm. Can be used only with block algorithms and certain modes like CBC, CFB etc.
-It is usefully if you want to restart or start a different encryption quickly.
+It is useful if you want to restart or start a different encryption quickly.
 */
 GF_Err gf_crypt_set_state(GF_Crypt *gfc, const void *iv, int size);
 /*gets the state of the algorithm. Can be used only certain modes and algorithms.
@@ -108,15 +108,14 @@ GF_Err gf_crypt_get_state(GF_Crypt *gfc, void *iv, int *size);
 
 /*
 This function initializes all buffers for the specified context
-@Lenofkey: key size in BYTES - maximum value of lenofkey should be the one obtained by
-calling gf_crypt_get_key_size() and every value smaller than this is legal.
-@IV: usually size of the algorithms block size - get it by calling gf_crypt_get_iv_size().
+@iv: usually size of the algorithms block size - get it by calling gf_crypt_get_iv_size().
 	IV is ignored in ECB. IV MUST exist in CFB, CBC, STREAM, nOFB and OFB modes.
 	It needs to be random and unique (but not secret). The same IV must be used
 	for encryption/decryption.
+@iv_size: key size in BYTES.
 After calling this function you can use the descriptor for encryption or decryption (not both).
 */
-GF_Err gf_crypt_init(GF_Crypt *gfc, void *key, const void *IV);
+GF_Err gf_crypt_init(GF_Crypt *gfc, void *key, const void *iv);
 /*changes key and IV*/
 GF_Err gf_crypt_set_key(GF_Crypt *gfc, void *key, u32 keysize, const void *iv);
 

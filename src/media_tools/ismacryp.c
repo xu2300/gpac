@@ -447,9 +447,9 @@ GF_Err gf_ismacryp_decrypt_track(GF_ISOFile *mp4, GF_TrackCryptInfo *tci, void (
 		return GF_IO_ERR;
 	}
 
-	memset(IV, 0, sizeof(char)*16);
+	memset(IV, 0, sizeof(char)*sizeof(IV));
 	memcpy(IV, tci->salt, sizeof(char)*8);
-	e = gf_crypt_init(mc, tci->key, GF_AES_128_KEYSIZE, IV);
+	e = gf_crypt_init(mc, tci->key, GF_AES_128_KEYSIZE, IV, sizeof(IV));
 	if (e) {
 		gf_crypt_close(mc);
 		GF_LOG(GF_LOG_ERROR, GF_LOG_AUTHOR, ("[CENC/ISMA] cannot initialize AES-128 CTR (%s)\n", gf_error_to_string(e)));

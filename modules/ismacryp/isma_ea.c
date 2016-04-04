@@ -430,7 +430,6 @@ static GF_Err CENC_ProcessData(ISMAEAPriv *priv, GF_IPMPEvent *evt)
 		}
 	}
 
-
 	for (i = 0; i < priv->KID_count; i++) {
 		if (!strncmp((const char *)KID, (const char *)priv->KIDs[i], 16)) {
 			memmove(priv->key, priv->keys[i], 16);

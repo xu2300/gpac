@@ -75,16 +75,17 @@ GF_Err gf_crypt_get_state(GF_Crypt *td, void *iv, int *size)
 
 
 GF_EXPORT
-GF_Err gf_crypt_init(GF_Crypt *td, void *key,const void *IV)
+GF_Err gf_crypt_init(GF_Crypt *td, void *key, const void *IV)
 {
 	GF_Err e;
 	u32  ok = 0;
-	u32 key_size = td->key_size;
+	u32 key_size;
 
-	if ((td->key_size > key_size) || (td->key_size ==0)) return GF_BAD_PARAM;
+	if (!td || (td->key_size > key_size) || (td->key_size == 0))
+		return GF_BAD_PARAM;
+	key_size = td->key_size;
 
-
-	td->keyword_given = (char*)gf_malloc(sizeof(char)*key_size);
+	td->keyword_given = gf_malloc(sizeof(char)*key_size);
 	if (td->keyword_given==NULL) return GF_OUT_OF_MEM;
 
 	memcpy(td->keyword_given, key, td->key_size);
@@ -92,7 +93,7 @@ GF_Err gf_crypt_init(GF_Crypt *td, void *key,const void *IV)
 	e = td->_init_crypt(td, key, IV);
 	if (e != GF_OK) gf_crypt_close(td);
 
-	e = gf_crypt_set_key(td, (void *) td->keyword_given, key_size, IV);
+	e = gf_crypt_set_key(td, td->keyword_given, key_size, IV);
 
 	if (e!=GF_OK) gf_crypt_close(td);
 	return e;
