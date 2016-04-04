@@ -33,7 +33,7 @@ extern "C" {
 #include <gpac/crypt.h>
 
 
-/*the samllest version of the lib: only AES-128-CTR and AES-CBC supported*/
+/*the smallest version of the lib: only AES-128-CTR and AES-CBC supported*/
 #define GPAC_CRYPT_ISMA_ONLY
 
 
@@ -50,22 +50,21 @@ typedef struct _tag_crypt_stream
 	u32 mode_version;
 
 	/* Internam context*/
-	void* context;
+	void *context;
 	/* holds the key */
-	char *keyword_given;
-
-	/*all below are static vars for mode and algo - sizes are in bytes*/
+	void *keyword_given;
 
 	/*modes access*/
-	GF_Err (*_init_crypt) (GF_Crypt*, void * , const void *);
+	GF_Err (*_init_crypt) (GF_Crypt*, void*, const void*, int);
 	void(*_deinit_crypt) (GF_Crypt*);
 	void (*_end_crypt) (GF_Crypt*);
 	void (* _set_key)(GF_Crypt*);
-	GF_Err (*_crypt) (GF_Crypt*, void *, int);
-	GF_Err (*_decrypt) (GF_Crypt*, void *, int);
-	GF_Err (*_set_state) (GF_Crypt*, void *, int );
-	GF_Err (*_get_state) (GF_Crypt*, void *, int *);
+	GF_Err (*_crypt) (GF_Crypt*, void*, int);
+	GF_Err (*_decrypt) (GF_Crypt*, void*, int);
+	GF_Err (*_set_state) (GF_Crypt*, void*, int);
+	GF_Err (*_get_state) (GF_Crypt*, void*, int*);
 
+	/*all below are static vars for mode and algo - sizes are in bytes*/
 	u32 algo_block_size;
 	u32 key_size;
 	u32 algo_IV_size;

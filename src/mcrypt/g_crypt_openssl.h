@@ -2,7 +2,7 @@
 *			GPAC - Multimedia Framework C SDK
 *
 *			Authors: Rodolphe Fouquet
-*			Copyright (c) Telecom ParisTech 2000-2016
+*			Copyright (c) Motion Spell 2016
 *					All rights reserved
 *
 *  This file is part of GPAC / crypto lib sub-project
@@ -26,26 +26,7 @@
 #define G_CRYPT_OPENSSL
 
 #include <gpac/internal/crypt_dev.h>
-#include <openssl/aes.h>
 
 GF_Err open_openssl(GF_Crypt* td, GF_CRYPTO_MODE mode);
-
-
-static void gf_set_key_openssl_cbc(GF_Crypt* td);
-static GF_Err gf_crypt_set_state_openssl_cbc(GF_Crypt* td, const void *iv, int size);
-static GF_Err gf_crypt_get_state_openssl_cbc(GF_Crypt* td, void *iv, int *size);
-static GF_Err gf_crypt_init_openssl_cbc(GF_Crypt* td, void *key, const void *IV);
-static GF_Err gf_crypt_encrypt_openssl_cbc(GF_Crypt* td, void *plaintext, int len);
-static GF_Err gf_crypt_decrypt_openssl_cbc(GF_Crypt* td, void *ciphertext, int len);
-
-
-static void gf_set_key_openssl_ctr(GF_Crypt* td);
-static GF_Err gf_crypt_set_state_openssl_ctr(GF_Crypt* td, const void *iv, int size);
-static GF_Err gf_crypt_get_state_openssl_ctr(GF_Crypt* td, void *iv, int *size);
-static GF_Err gf_crypt_init_openssl_ctr(GF_Crypt* td, void *key, const void *IV);
-static GF_Err gf_crypt_encrypt_openssl_ctr(GF_Crypt* td, void *plaintext, int len);
-static GF_Err gf_crypt_decrypt_openssl_ctr(GF_Crypt* td, void *ciphertext, int len);
-
-
 
 #endif /* G_CRYPT_OPENSSL */
