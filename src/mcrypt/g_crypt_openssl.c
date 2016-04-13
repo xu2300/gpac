@@ -36,7 +36,7 @@ typedef struct {
 
 /** CBC STUFF **/
 
-GF_Err gf_crypt_init_openssl_cbc(GF_Crypt* td, void *key, const void *iv, int iv_size)
+GF_Err gf_crypt_init_openssl_cbc(GF_Crypt* td, void *key, const void *iv)
 {
 	GF_SAFEALLOC(td->context, Openssl_ctx_cbc);
 	if (td->context == NULL) goto freeall;
@@ -106,7 +106,7 @@ GF_Err gf_crypt_encrypt_openssl_cbc(GF_Crypt* td, u8 *plaintext, int len)
 	int numberOfIterations = 1 + len / td->algo_block_size;
 	for (iteration = 0; iteration < numberOfIterations; ++iteration) {
 		AES_cbc_encrypt(plaintext + iteration*td->algo_block_size, ctx->block, td->algo_block_size, &ctx->enc_key, ctx->previous_ciphertext, AES_ENCRYPT);
-		memcpy((u8)plaintext + iteration*td->algo_block_size, ctx->block, td->algo_block_size);
+		memcpy((u8*)plaintext + iteration*td->algo_block_size, ctx->block, td->algo_block_size);
 		memcpy(ctx->previous_ciphertext, ctx->previous_cipher, td->algo_block_size);
 	}
 
@@ -122,7 +122,7 @@ GF_Err gf_crypt_decrypt_openssl_cbc(GF_Crypt* td, u8 *ciphertext, int len)
 	int numberOfIterations = 1 + len / td->algo_block_size;
 	for (iteration = 0; iteration < numberOfIterations; ++iteration) {
 		AES_cbc_encrypt(ciphertext + iteration*td->algo_block_size, ctx->block, td->algo_block_size, &ctx->dec_key, ctx->previous_ciphertext, AES_DECRYPT);
-		memcpy((u8)ciphertext + iteration*td->algo_block_size, ctx->block, td->algo_block_size);
+		memcpy((u8*)ciphertext + iteration*td->algo_block_size, ctx->block, td->algo_block_size);
 		memcpy(ctx->previous_ciphertext, ctx->previous_cipher, td->algo_block_size);
 	}
 
@@ -132,9 +132,9 @@ GF_Err gf_crypt_decrypt_openssl_cbc(GF_Crypt* td, u8 *ciphertext, int len)
 typedef struct {
 	AES_KEY enc_key;
 	AES_KEY dec_key;
-	unsigned char* block;
-	unsigned char* enc_counter;
-	unsigned char* c_counter;
+	u8* block;
+	u8* enc_counter;
+	u8* c_counter;
 	unsigned int c_counter_pos;
 } Openssl_ctx_ctr;
 
@@ -153,9 +153,9 @@ static GF_Err gf_crypt_set_state_openssl_ctr(GF_Crypt* td, const void *iv, int i
 {
 	Openssl_ctx_ctr* ctx = (Openssl_ctx_ctr*)td->context;
 
-	ctx->c_counter_pos = ((unsigned char*)iv)[0];
-	memcpy(ctx->c_counter, &((unsigned char*)iv)[1], iv_size - 1);
-	memcpy(ctx->enc_counter, &((unsigned char*)iv)[1], iv_size - 1);
+	ctx->c_counter_pos = ((u8*)iv)[0];
+	memcpy(ctx->c_counter, &((u8*)iv)[1], iv_size - 1);
+	memcpy(ctx->enc_counter, &((u8*)iv)[1], iv_size - 1);
 	return GF_OK;
 }
 
@@ -165,12 +165,12 @@ static GF_Err gf_crypt_get_state_openssl_ctr(GF_Crypt* td, void *iv, int *iv_siz
 
 	*iv_size = td->algo_block_size + 1;
 
-	((unsigned char *)iv)[0] = ctx->c_counter_pos;
-	memcpy(&((unsigned char *)iv)[1], ctx->c_counter, td->algo_block_size);
+	((u8 *)iv)[0] = ctx->c_counter_pos;
+	memcpy(&((u8 *)iv)[1], ctx->c_counter, td->algo_block_size);
 	return GF_OK;
 }
 
-static GF_Err gf_crypt_init_openssl_ctr(GF_Crypt* td, void *key, const void *iv, int iv_size)
+static GF_Err gf_crypt_init_openssl_ctr(GF_Crypt* td, void *key, const void *iv)
 {
 	GF_SAFEALLOC(td->context, Openssl_ctx_ctr);
 	Openssl_ctx_ctr* ctx = (Openssl_ctx_ctr*)td->context;
@@ -185,8 +185,11 @@ static GF_Err gf_crypt_init_openssl_ctr(GF_Crypt* td, void *key, const void *iv,
 	if (ctx->enc_counter == NULL) goto freeall;
 
 	if (iv != NULL) {
-		memcpy(ctx->enc_counter, iv, td->algo_block_size);
-		memcpy(ctx->c_counter, iv, td->algo_block_size);
+
+		memcpy(ctx->c_counter, &((u8*)iv)[1], td->algo_block_size);
+		memcpy(ctx->enc_counter, &((u8*)iv)[1], td->algo_block_size);
+		/*memcpy(ctx->enc_counter, iv, td->algo_block_size);
+		memcpy(ctx->c_counter, iv, td->algo_block_size);*/
 	}
 	/* End ctr */
 
@@ -204,6 +207,11 @@ static GF_Err gf_crypt_encrypt_openssl_ctr(GF_Crypt* td, u8 *plaintext, int len)
 {
 	Openssl_ctx_ctr* ctx = (Openssl_ctx_ctr*)td->context;	
 	int iteration;
+	int numberOfIterations = 1 + len / td->algo_block_size;
+	for (iteration = 0; iteration < numberOfIterations; ++iteration) {
+		AES_ctr128_encrypt(((const u8*)plaintext) + iteration*td->algo_block_size, ctx->block, td->algo_block_size, &(ctx->enc_key), ctx->c_counter, ctx->enc_counter, &ctx->c_counter_pos);
+		memcpy((u8*)plaintext + iteration*td->algo_block_size, ctx->block, td->algo_block_size);
+	}
 	return GF_OK;
 }
 
@@ -214,8 +222,8 @@ static GF_Err gf_crypt_decrypt_openssl_ctr(GF_Crypt* td, u8 *ciphertext, int len
 	int iteration;
 	int numberOfIterations = 1 + len / td->algo_block_size;
 	for (iteration = 0; iteration < numberOfIterations; ++iteration) {
-		AES_ctr128_encrypt((const u8)ciphertext + iteration*td->algo_block_size, ctx->block, len, &(ctx->enc_key), ctx->c_counter, ctx->enc_counter, ctx->c_counter_pos);
-		memcpy((u8)ciphertext + iteration*td->algo_block_size, ctx->block, td->algo_block_size);
+		AES_ctr128_encrypt(((const u8*)ciphertext) + iteration*td->algo_block_size, ctx->block, td->algo_block_size, &(ctx->enc_key), ctx->c_counter, ctx->enc_counter, &ctx->c_counter_pos);
+		memcpy((u8*)ciphertext + iteration*td->algo_block_size, ctx->block, td->algo_block_size);
 	}
 	return GF_OK;
 }
