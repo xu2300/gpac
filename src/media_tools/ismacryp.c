@@ -2112,7 +2112,7 @@ static GF_Err gf_cenc_parse_drm_system_info(GF_ISOFile *mp4, const char *drm_fil
 				GF_LOG(GF_LOG_ERROR, GF_LOG_AUTHOR, ("[CENC/ISMA] Cannot open AES-128 CTR\n"));
 				return GF_IO_ERR;
 			}
-			e = gf_crypt_init(mc, cypherKey, GF_AES_128_KEYSIZE, cypherIV);
+			e = gf_crypt_init(mc, cypherKey, cypherIV);
 			gf_crypt_encrypt(mc, data+cypherOffset, len-cypherOffset);
 			gf_crypt_close(mc);
 		}

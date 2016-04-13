@@ -46,6 +46,7 @@ GF_Err gf_crypt_init_openssl_cbc(GF_Crypt* td, void *key, const void *iv)
 
 	ctx->previous_ciphertext = gf_malloc(td->algo_block_size);
 	ctx->previous_cipher = gf_malloc(td->algo_block_size);
+	ctx->block = gf_malloc(td->algo_block_size);
 	if(ctx->previous_ciphertext == NULL) goto freeall;
 	if(ctx->previous_cipher == NULL) goto freeall;
 
@@ -184,12 +185,15 @@ static GF_Err gf_crypt_init_openssl_ctr(GF_Crypt* td, void *key, const void *iv)
 	ctx->enc_counter = gf_malloc(td->algo_block_size);
 	if (ctx->enc_counter == NULL) goto freeall;
 
+	ctx->block = gf_malloc(td->algo_block_size);
+	if (ctx->block == NULL) goto freeall;
+
 	if (iv != NULL) {
 
-		memcpy(ctx->c_counter, &((u8*)iv)[1], td->algo_block_size);
-		memcpy(ctx->enc_counter, &((u8*)iv)[1], td->algo_block_size);
-		/*memcpy(ctx->enc_counter, iv, td->algo_block_size);
-		memcpy(ctx->c_counter, iv, td->algo_block_size);*/
+		/*memcpy(ctx->c_counter, &((u8*)iv)[1], td->algo_block_size);
+		memcpy(ctx->enc_counter, &((u8*)iv)[1], td->algo_block_size);*/
+		memcpy(ctx->enc_counter, iv, td->algo_block_size);
+		memcpy(ctx->c_counter, iv, td->algo_block_size);
 	}
 	/* End ctr */
 
@@ -198,6 +202,7 @@ static GF_Err gf_crypt_init_openssl_ctr(GF_Crypt* td, void *key, const void *iv)
 freeall:
 	gf_free(ctx->c_counter);
 	gf_free(ctx->enc_counter);
+	gf_free(ctx->block);
 	return GF_OUT_OF_MEM;
 }
 

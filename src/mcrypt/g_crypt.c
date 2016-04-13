@@ -81,8 +81,6 @@ GF_Err gf_crypt_init(GF_Crypt *td, void *key, const void *IV)
 	u32  ok = 0;
 	u32 key_size;
 
-/*	if (!td || (td->key_size > key_size) || (td->key_size == 0))
-		return GF_BAD_PARAM;*/
 	key_size = td->key_size;
 
 	td->keyword_given = gf_malloc(sizeof(char)*key_size);
