@@ -55,7 +55,7 @@ typedef struct _tag_crypt_stream
 	void *keyword_given;
 
 	/*modes access*/
-	GF_Err (*_init_crypt) (GF_Crypt*, void*, const void*, int);
+	GF_Err (*_init_crypt) (GF_Crypt*, void*, const void*);
 	void(*_deinit_crypt) (GF_Crypt*);
 	void (*_end_crypt) (GF_Crypt*);
 	void (* _set_key)(GF_Crypt*);

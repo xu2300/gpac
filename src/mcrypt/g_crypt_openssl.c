@@ -102,8 +102,14 @@ GF_Err gf_crypt_get_state_openssl_cbc(GF_Crypt* td, void *iv, int *iv_size)
 GF_Err gf_crypt_encrypt_openssl_cbc(GF_Crypt* td, u8 *plaintext, int len)
 {
 	Openssl_ctx_cbc* ctx = (Openssl_ctx_cbc*)td->context;
-	AES_cbc_encrypt(plaintext, ctx->block, len, &ctx->enc_key, ctx->previous_ciphertext, AES_ENCRYPT);
-	memcpy(ctx->previous_ciphertext, ctx->previous_cipher, td->algo_block_size);
+	int iteration;
+	int numberOfIterations = 1 + len / td->algo_block_size;
+	for (iteration = 0; iteration < numberOfIterations; ++iteration) {
+		AES_cbc_encrypt(plaintext + iteration*td->algo_block_size, ctx->block, td->algo_block_size, &ctx->enc_key, ctx->previous_ciphertext, AES_ENCRYPT);
+		memcpy((u8)plaintext + iteration*td->algo_block_size, ctx->block, td->algo_block_size);
+		memcpy(ctx->previous_ciphertext, ctx->previous_cipher, td->algo_block_size);
+	}
+
 	return GF_OK;
 }
 
@@ -111,8 +117,15 @@ GF_Err gf_crypt_encrypt_openssl_cbc(GF_Crypt* td, u8 *plaintext, int len)
 GF_Err gf_crypt_decrypt_openssl_cbc(GF_Crypt* td, u8 *ciphertext, int len)
 {
 	Openssl_ctx_cbc* ctx = (Openssl_ctx_cbc*)td->context;
-	AES_cbc_encrypt(ciphertext, ctx->block, len, &ctx->dec_key, ctx->previous_ciphertext, AES_DECRYPT);
-	memcpy(ctx->previous_ciphertext, ctx->previous_cipher, td->algo_block_size);
+
+	int iteration;
+	int numberOfIterations = 1 + len / td->algo_block_size;
+	for (iteration = 0; iteration < numberOfIterations; ++iteration) {
+		AES_cbc_encrypt(ciphertext + iteration*td->algo_block_size, ctx->block, td->algo_block_size, &ctx->dec_key, ctx->previous_ciphertext, AES_DECRYPT);
+		memcpy((u8)ciphertext + iteration*td->algo_block_size, ctx->block, td->algo_block_size);
+		memcpy(ctx->previous_ciphertext, ctx->previous_cipher, td->algo_block_size);
+	}
+
 	return GF_OK;
 }
 
@@ -189,16 +202,21 @@ freeall:
 /** TODO: WIP - where do I store the result? Did I map the members correctly? **/
 static GF_Err gf_crypt_encrypt_openssl_ctr(GF_Crypt* td, u8 *plaintext, int len)
 {
-	Openssl_ctx_ctr* ctx = (Openssl_ctx_ctr*)td->context;
-	AES_ctr128_encrypt(plaintext, ctx->block, len, &(ctx->enc_key), ctx->c_counter, ctx->enc_counter, &ctx->c_counter_pos);
+	Openssl_ctx_ctr* ctx = (Openssl_ctx_ctr*)td->context;	
+	int iteration;
 	return GF_OK;
 }
 
 /** TODO: WIP - where do I store the result? **/
 static GF_Err gf_crypt_decrypt_openssl_ctr(GF_Crypt* td, u8 *ciphertext, int len)
 {
-	Openssl_ctx_ctr* ctx = (Openssl_ctx_ctr*)td->context;	
-	AES_ctr128_encrypt(ciphertext, ctx->block, len, &(ctx->enc_key), ctx->c_counter, ctx->enc_counter, &ctx->c_counter_pos);
+	Openssl_ctx_ctr* ctx = (Openssl_ctx_ctr*)td->context;		
+	int iteration;
+	int numberOfIterations = 1 + len / td->algo_block_size;
+	for (iteration = 0; iteration < numberOfIterations; ++iteration) {
+		AES_ctr128_encrypt((const u8)ciphertext + iteration*td->algo_block_size, ctx->block, len, &(ctx->enc_key), ctx->c_counter, ctx->enc_counter, ctx->c_counter_pos);
+		memcpy((u8)ciphertext + iteration*td->algo_block_size, ctx->block, td->algo_block_size);
+	}
 	return GF_OK;
 }
 
