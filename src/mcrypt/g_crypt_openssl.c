@@ -104,7 +104,7 @@ GF_Err gf_crypt_encrypt_openssl_cbc(GF_Crypt* td, u8 *plaintext, int len)
 {
 	Openssl_ctx_cbc* ctx = (Openssl_ctx_cbc*)td->context;
 	int iteration;
-	int numberOfIterations = 1 + len / td->algo_block_size;
+	int numberOfIterations = len / td->algo_block_size;
 	for (iteration = 0; iteration < numberOfIterations; ++iteration) {
 		AES_cbc_encrypt(plaintext + iteration*td->algo_block_size, ctx->block, td->algo_block_size, &ctx->enc_key, ctx->previous_ciphertext, AES_ENCRYPT);
 		memcpy((u8*)plaintext + iteration*td->algo_block_size, ctx->block, td->algo_block_size);
@@ -120,7 +120,7 @@ GF_Err gf_crypt_decrypt_openssl_cbc(GF_Crypt* td, u8 *ciphertext, int len)
 	Openssl_ctx_cbc* ctx = (Openssl_ctx_cbc*)td->context;
 
 	int iteration;
-	int numberOfIterations = 1 + len / td->algo_block_size;
+	int numberOfIterations = len / td->algo_block_size;
 	for (iteration = 0; iteration < numberOfIterations; ++iteration) {
 		AES_cbc_encrypt(ciphertext + iteration*td->algo_block_size, ctx->block, td->algo_block_size, &ctx->dec_key, ctx->previous_ciphertext, AES_DECRYPT);
 		memcpy((u8*)ciphertext + iteration*td->algo_block_size, ctx->block, td->algo_block_size);
@@ -212,7 +212,7 @@ static GF_Err gf_crypt_encrypt_openssl_ctr(GF_Crypt* td, u8 *plaintext, int len)
 {
 	Openssl_ctx_ctr* ctx = (Openssl_ctx_ctr*)td->context;	
 	int iteration;
-	int numberOfIterations = 1 + len / td->algo_block_size;
+	int numberOfIterations =  len / td->algo_block_size;
 	for (iteration = 0; iteration < numberOfIterations; ++iteration) {
 		AES_ctr128_encrypt(((const u8*)plaintext) + iteration*td->algo_block_size, ctx->block, td->algo_block_size, &(ctx->enc_key), ctx->c_counter, ctx->enc_counter, &ctx->c_counter_pos);
 		memcpy((u8*)plaintext + iteration*td->algo_block_size, ctx->block, td->algo_block_size);
@@ -225,7 +225,7 @@ static GF_Err gf_crypt_decrypt_openssl_ctr(GF_Crypt* td, u8 *ciphertext, int len
 {
 	Openssl_ctx_ctr* ctx = (Openssl_ctx_ctr*)td->context;		
 	int iteration;
-	int numberOfIterations = 1 + len / td->algo_block_size;
+	int numberOfIterations = len / td->algo_block_size;
 	for (iteration = 0; iteration < numberOfIterations; ++iteration) {
 		AES_ctr128_encrypt(((const u8*)ciphertext) + iteration*td->algo_block_size, ctx->block, td->algo_block_size, &(ctx->enc_key), ctx->c_counter, ctx->enc_counter, &ctx->c_counter_pos);
 		memcpy((u8*)ciphertext + iteration*td->algo_block_size, ctx->block, td->algo_block_size);
