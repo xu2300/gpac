@@ -57,6 +57,7 @@ extern "C" {
  *	@{
  */
 
+#define GF_NORM_DIFF(A, B) fabs(((Double)(A)-(Double)B)/(Double)(A))
 
 /*****************************************************************************************
 			FIXED-POINT SUPPORT - HARDCODED FOR 16.16 representation

@@ -25,6 +25,7 @@
 
 #include <gpac/internal/media_dev.h>
 #include <gpac/constants.h>
+#include <gpac/maths.h>
 #include <gpac/mpegts.h>
 #include <gpac/config_file.h>
 #include <gpac/network.h>
@@ -2627,7 +2628,7 @@ static GF_Err dasher_isom_classify_input(GF_DashSegInput *dash_inputs, u32 nb_da
 				gf_isom_get_track_layout_info(set_file, j+1, &w1, &h1, NULL, NULL, NULL);
 				gf_isom_get_track_layout_info(in, track, &w2, &h2, NULL, NULL, NULL);
 
-				if (h1*w2 != h2*w1) {
+				if (GF_NORM_DIFF(h1*w2, h2*w1) >= GF_ASPECT_RATIO_TOLERANCE) {
 					u32 hs1, hs2, vs1, vs2, vw1, vh1, vw2, vh2;
 					u64 ar1, ar2;
 

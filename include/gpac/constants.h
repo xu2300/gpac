@@ -641,6 +641,8 @@ enum {
 
 #endif
 
+/*tolerance when comparing aspect ratios*/
+#define GF_ASPECT_RATIO_TOLERANCE 0.01
 
 /*rate sizes - note that these sizes INCLUDE the rate_type header byte*/
 static const unsigned int GF_QCELP_RATE_TO_SIZE [] = {0, 1, 1, 4, 2, 8, 3, 17, 4, 35, 5, 8, 14, 1};

@@ -25,18 +25,18 @@
 
 #include <gpac/internal/media_dev.h>
 #include <gpac/constants.h>
+#include <gpac/maths.h>
 #include <gpac/mpeg4_odf.h>
 
 #ifndef GPAC_DISABLE_OGG
 #include <gpac/internal/ogg.h>
-#include <gpac/maths.h>
 #endif
 
 static const struct {
 	u32 w, h;
 } std_par[ ] =
 {
-	{ 4, 3}, {3, 2}, {16, 9}, {5, 3}, {5, 4}, {8, 5}, {2, 1},
+	{4, 3}, {3, 2}, {16, 9}, {5, 3}, {5, 4}, {8, 5}, {2, 1},
 	{0, 0},
 };
 
@@ -47,7 +47,7 @@ void gf_media_reduce_aspect_ratio(u32 *width, u32 *height)
 	u32 w = *width;
 	u32 h = *height;
 	while (std_par[i].w) {
-		if (std_par[i].w * h == std_par[i].h * w) {
+		if (GF_NORM_DIFF(std_par[i].w * h, std_par[i].h * w) < GF_ASPECT_RATIO_TOLERANCE) {
 			*width = std_par[i].w;
 			*height = std_par[i].h;
 			return;
