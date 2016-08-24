@@ -449,7 +449,7 @@ GF_Err gf_ismacryp_decrypt_track(GF_ISOFile *mp4, GF_TrackCryptInfo *tci, void (
 
 	memset(IV, 0, sizeof(char)*sizeof(IV));
 	memcpy(IV, tci->salt, sizeof(char)*8);
-	e = gf_crypt_init(mc, tci->key, GF_AES_128_KEYSIZE, IV, sizeof(IV));
+	e = gf_crypt_init(mc, tci->key, IV);
 	if (e) {
 		gf_crypt_close(mc);
 		GF_LOG(GF_LOG_ERROR, GF_LOG_AUTHOR, ("[CENC/ISMA] cannot initialize AES-128 CTR (%s)\n", gf_error_to_string(e)));
@@ -643,7 +643,7 @@ GF_Err gf_ismacryp_encrypt_track(GF_ISOFile *mp4, GF_TrackCryptInfo *tci, void (
 		GF_LOG(GF_LOG_ERROR, GF_LOG_AUTHOR, ("[CENC/ISMA] Cannot open AES-128 CTR\n"));
 		return GF_IO_ERR;
 	}
-	e = gf_crypt_init(mc, tci->key, GF_AES_128_KEYSIZE, IV);
+	e = gf_crypt_init(mc, tci->key, IV);
 	if (e) {
 		GF_LOG(GF_LOG_ERROR, GF_LOG_AUTHOR, ("[CENC/ISMA] Cannot initialize AES-128 CTR (%s)\n", gf_error_to_string(e)) );
 		gf_crypt_close(mc);
@@ -1309,7 +1309,7 @@ GF_Err gf_cenc_encrypt_track(GF_ISOFile *mp4, GF_TrackCryptInfo *tci, void (*pro
 			else
 				return GF_NOT_SUPPORTED;
 
-			e = gf_crypt_init(mc, tci->key, GF_AES_128_KEYSIZE, IV);
+			e = gf_crypt_init(mc, tci->key, IV);
 			if (e) {
 				GF_LOG(GF_LOG_ERROR, GF_LOG_AUTHOR, ("[CENC] Cannot initialize AES-128 %s (%s)\n", tci->ctr_mode ? "CTR" : "CBC", gf_error_to_string(e)) );
 				gf_crypt_close(mc);
@@ -1465,7 +1465,7 @@ GF_Err gf_cenc_decrypt_track(GF_ISOFile *mp4, GF_TrackCryptInfo *tci, void (*pro
 					memset(IV+8, 0, sizeof(char)*8);
 			}
 
-			e = gf_crypt_init(mc, tci->key, GF_AES_128_KEYSIZE, IV);
+			e = gf_crypt_init(mc, tci->key, IV);
 			if (e) {
 				GF_LOG(GF_LOG_ERROR, GF_LOG_AUTHOR, ("[CENC] Cannot initialize AES-128 CTR (%s)\n", gf_error_to_string(e)) );
 				gf_crypt_close(mc);
@@ -1700,7 +1700,7 @@ GF_Err gf_adobe_encrypt_track(GF_ISOFile *mp4, GF_TrackCryptInfo *tci, void (*pr
 			if (!has_crypted_samp) {
 				memset(IV, 0, sizeof(char)*16);
 				memcpy(IV, tci->first_IV, sizeof(char)*16);
-				e = gf_crypt_init(mc, tci->key, GF_AES_128_KEYSIZE, IV);
+				e = gf_crypt_init(mc, tci->key, IV);
 				if (e) {
 					GF_LOG(GF_LOG_ERROR, GF_LOG_AUTHOR, ("[ADOBE] Cannot initialize AES-128 CBC (%s)\n",  gf_error_to_string(e)) );
 					gf_crypt_close(mc);
@@ -1802,7 +1802,7 @@ GF_Err gf_adobe_decrypt_track(GF_ISOFile *mp4, GF_TrackCryptInfo *tci, void (*pr
 		if (encrypted_au) {
 			memmove(IV, ptr+1, 16);
 			if (!prev_sample_decrypted) {
-				e = gf_crypt_init(mc, tci->key, GF_AES_128_KEYSIZE, IV);
+				e = gf_crypt_init(mc, tci->key,  IV);
 				if (e) {
 					GF_LOG(GF_LOG_ERROR, GF_LOG_AUTHOR, ("[ADOBE] Cannot initialize AES-128 CBC (%s)\n", gf_error_to_string(e)) );
 					gf_crypt_close(mc);
