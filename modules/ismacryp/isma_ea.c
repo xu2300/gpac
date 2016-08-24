@@ -442,7 +442,7 @@ static GF_Err CENC_ProcessData(ISMAEAPriv *priv, GF_IPMPEvent *evt)
 		memmove(IV, sai->IV, sai->IV_size);
 		if (sai->IV_size == 8)
 			memset(IV+8, 0, sizeof(char)*8);
-		e = gf_crypt_init(priv->crypt, priv->key, IV, sai->IV_size);
+		e = gf_crypt_init(priv->crypt, priv->key, IV);
 		if (e) {
 			GF_LOG(GF_LOG_ERROR, GF_LOG_AUTHOR, ("[CENC] Cannot initialize AES-128 AES-128 %s (%s)\n", priv->is_cenc ? "CTR" : "CBC", gf_error_to_string(e)) );
 			e = GF_IO_ERR;

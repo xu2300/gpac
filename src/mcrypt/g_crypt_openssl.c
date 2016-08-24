@@ -74,8 +74,8 @@ void gf_crypt_deinit_openssl_cbc(GF_Crypt* td)
 void gf_set_key_openssl_cbc(GF_Crypt* td)
 {
 	Openssl_ctx_cbc* ctx = (Openssl_ctx_cbc*)td->context;
-	AES_set_encrypt_key(td->keyword_given, td->key_size, &(ctx->enc_key));
-	AES_set_decrypt_key(td->keyword_given, td->key_size, &(ctx->dec_key));
+	AES_set_encrypt_key(td->keyword_given, td->key_size * 8, &(ctx->enc_key));
+	AES_set_decrypt_key(td->keyword_given, td->key_size * 8, &(ctx->dec_key));
 }
 
 // Is size really needed? -> to investigate
@@ -145,8 +145,8 @@ typedef struct {
 static void gf_set_key_openssl_ctr(GF_Crypt* td)
 {
 	Openssl_ctx_ctr* ctx = (Openssl_ctx_ctr*)td->context;
-	AES_set_encrypt_key(td->keyword_given, td->key_size, &(ctx->enc_key));
-	AES_set_decrypt_key(td->keyword_given, td->key_size, &(ctx->dec_key));
+	AES_set_encrypt_key(td->keyword_given, td->key_size*8, &(ctx->enc_key));
+	AES_set_decrypt_key(td->keyword_given, td->key_size * 8, &(ctx->dec_key));
 }
 
 // Is size really needed? -> to investigate
@@ -190,10 +190,8 @@ static GF_Err gf_crypt_init_openssl_ctr(GF_Crypt* td, void *key, const void *iv)
 
 	if (iv != NULL) {
 
-		/*memcpy(ctx->c_counter, &((u8*)iv)[1], td->algo_block_size);
-		memcpy(ctx->enc_counter, &((u8*)iv)[1], td->algo_block_size);*/
-		memcpy(ctx->enc_counter, iv, td->algo_block_size);
-		memcpy(ctx->c_counter, iv, td->algo_block_size);
+		memcpy(ctx->c_counter, &((u8*)iv)[1], td->algo_block_size);
+		memcpy(ctx->enc_counter, &((u8*)iv)[1], td->algo_block_size);
 	}
 	/* End ctr */
 
