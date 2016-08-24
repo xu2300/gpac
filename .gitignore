@@ -85,7 +85,10 @@ extra_lib/include/ios/
 config.mak
 configure-stamp
 gpac.pc
+<<<<<<< HEAD
 tests/external_media/
 tests/results/
 
 extra_lib/include/openssl/
+=======
+>>>>>>> 907044bb337f2716a8e7b42c2d6a77faadbad724

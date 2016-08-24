@@ -1464,7 +1464,6 @@ GF_Err gf_cenc_decrypt_track(GF_ISOFile *mp4, GF_TrackCryptInfo *tci, void (*pro
 				if (tci->constant_IV_size == 8)
 					memset(IV+8, 0, sizeof(char)*8);
 			}
-
 			e = gf_crypt_init(mc, tci->key, IV);
 			if (e) {
 				GF_LOG(GF_LOG_ERROR, GF_LOG_AUTHOR, ("[CENC] Cannot initialize AES-128 CTR (%s)\n", gf_error_to_string(e)) );
