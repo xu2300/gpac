@@ -392,7 +392,7 @@ static GF_Err CENC_ProcessData(ISMAEAPriv *priv, GF_IPMPEvent *evt)
 {
 	GF_Err e;
 	GF_BitStream *pleintext_bs, *cyphertext_bs, *sai_bs;
-	char IV[17];
+	char IV[GF_AES_128_KEYSIZE + 1];
 	bin128 KID;
 	char *buffer;
 	u32 max_size, i, subsample_count;
@@ -457,7 +457,7 @@ static GF_Err CENC_ProcessData(ISMAEAPriv *priv, GF_IPMPEvent *evt)
 	} else {
 		if (priv->is_cenc) {
 			GF_BitStream *bs;
-			bs = gf_bs_new(IV, 17, GF_BITSTREAM_WRITE);
+			bs = gf_bs_new(IV, GF_AES_128_KEYSIZE + 1, GF_BITSTREAM_WRITE);
 			gf_bs_write_u8(bs, 0);	/*begin of counter*/
 			gf_bs_write_data(bs,(char *)sai->IV, sai->IV_size);
 			if (sai->IV_size == 8)
@@ -465,7 +465,7 @@ static GF_Err CENC_ProcessData(ISMAEAPriv *priv, GF_IPMPEvent *evt)
 			gf_bs_del(bs);
 			gf_crypt_set_state(priv->crypt, IV, GF_AES_128_KEYSIZE + 1);
 		}
-		e = gf_crypt_set_key(priv->crypt, priv->key, GF_AES_128_KEYSIZE, IV);
+		e = gf_crypt_set_key(priv->crypt, priv->key, CENC_ProcessData, IV);
 		if (e) {
 			GF_LOG(GF_LOG_ERROR, GF_LOG_AUTHOR, ("[CENC] Cannot set key AES-128 %s (%s)\n", priv->is_cenc ? "CTR" : "CBC", gf_error_to_string(e)) );
 			e = GF_IO_ERR;

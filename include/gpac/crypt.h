@@ -80,7 +80,7 @@ extern "C" {
 /*crypto lib handler*/
 typedef struct _tag_crypt_stream GF_Crypt;
 
-#define GF_AES_128_KEYSIZE 8
+#define GF_AES_128_KEYSIZE 16
 
 typedef enum {
 	GF_CBC = 0,

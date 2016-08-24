@@ -1185,7 +1185,7 @@ GF_Err piff_psec_Read(GF_Box *s, GF_BitStream *bs)
 	}
 
 	ptr->bs_offset = gf_bs_get_position(bs);
-	assert(ptr->size == 0);
+//	assert(ptr->size == 0);
 	return GF_OK;
 }
 

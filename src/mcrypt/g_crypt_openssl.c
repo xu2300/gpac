@@ -73,7 +73,6 @@ void gf_set_key_openssl_cbc(GF_Crypt* td)
 	AES_set_decrypt_key(td->keyword_given, td->key_size * 8, &(ctx->dec_key));
 }
 
-// Is size really needed? -> to investigate
 GF_Err gf_crypt_set_state_openssl_cbc(GF_Crypt* td, const void *iv, int iv_size)
 {
 	Openssl_ctx_cbc* ctx = (Openssl_ctx_cbc* )td->context;
@@ -93,7 +92,6 @@ GF_Err gf_crypt_get_state_openssl_cbc(GF_Crypt* td, void *iv, int *iv_size)
 }
 
 
-/** TODO: WIP - where do I store the result? I guess I should loop and concatenate output blocks somewhere **/
 GF_Err gf_crypt_encrypt_openssl_cbc(GF_Crypt* td, u8 *plaintext, int len)
 {
 	Openssl_ctx_cbc* ctx = (Openssl_ctx_cbc*)td->context;
@@ -107,7 +105,6 @@ GF_Err gf_crypt_encrypt_openssl_cbc(GF_Crypt* td, u8 *plaintext, int len)
 	return GF_OK;
 }
 
-/** TODO: WIP - where do I store the result? **/
 GF_Err gf_crypt_decrypt_openssl_cbc(GF_Crypt* td, u8 *ciphertext, int len)
 {
 	Openssl_ctx_cbc* ctx = (Openssl_ctx_cbc*)td->context;
@@ -142,7 +139,6 @@ static void gf_set_key_openssl_ctr(GF_Crypt* td)
 	AES_set_decrypt_key(td->keyword_given, td->key_size * 8, &(ctx->dec_key));
 }
 
-// Is size really needed? -> to investigate
 static GF_Err gf_crypt_set_state_openssl_ctr(GF_Crypt* td, const void *iv, int iv_size)
 {
 	Openssl_ctx_ctr* ctx = (Openssl_ctx_ctr*)td->context;
@@ -198,7 +194,6 @@ freeall:
 }
 
 
-/** TODO: WIP - where do I store the result? Did I map the members correctly? **/
 static GF_Err gf_crypt_encrypt_openssl_ctr(GF_Crypt* td, u8 *plaintext, int len)
 {
 	Openssl_ctx_ctr* ctx = (Openssl_ctx_ctr*)td->context;	
@@ -211,7 +206,6 @@ static GF_Err gf_crypt_encrypt_openssl_ctr(GF_Crypt* td, u8 *plaintext, int len)
 	return GF_OK;
 }
 
-/** TODO: WIP - where do I store the result? **/
 static GF_Err gf_crypt_decrypt_openssl_ctr(GF_Crypt* td, u8 *ciphertext, int len)
 {
 	Openssl_ctx_ctr* ctx = (Openssl_ctx_ctr*)td->context;		
