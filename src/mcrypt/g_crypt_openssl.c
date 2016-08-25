@@ -227,31 +227,46 @@ freeall:
 	gf_free(ctx->block);
 }
 
+ enum CRYPT_MODE {
+	 CRYPT = AES_ENCRYPT,
+	 DECRYPT = AES_DECRYPT
+ };
+
+ GF_Err gf_crypt_crypt_openssl_ctr(GF_Crypt* td, u8 *plaintext, int len, int aes_crypt_type) {
+	 Openssl_ctx_ctr* ctx = (Openssl_ctx_ctr*)td->context;
+	 int iteration;
+	 int numberOfIterations = ((float)len / (float)td->algo_block_size);
+	 AES_KEY *key;
+	 if (aes_crypt_type == AES_ENCRYPT) {
+		 key = &ctx->enc_key;
+	 }
+	 else {
+		 key = &ctx->dec_key;
+	 }
+	 for (iteration = 0; iteration < numberOfIterations; ++iteration) {
+		 if (len - iteration*td->algo_block_size < td->algo_block_size) {
+			 memset(ctx->padded_input, 0, td->algo_block_size);
+			 memcpy(ctx->padded_input, plaintext, len - iteration*td->algo_block_size);
+			 AES_ctr128_encrypt(((const u8*)ctx->padded_input), ctx->block, td->algo_block_size, key, ctx->c_counter, ctx->enc_counter, &ctx->c_counter_pos);
+			 memcpy(plaintext, ctx->block, len - iteration*td->algo_block_size);
+		 }
+		 else {
+			 AES_ctr128_encrypt(((const u8*)plaintext) + iteration*td->algo_block_size, ctx->block, td->algo_block_size, key, ctx->c_counter, ctx->enc_counter, &ctx->c_counter_pos);
+			 memcpy((u8*)plaintext + iteration*td->algo_block_size, ctx->block, td->algo_block_size);
+		 }
+
+	 }
+	 return GF_OK;
+ }
 
  GF_Err gf_crypt_encrypt_openssl_ctr(GF_Crypt* td, u8 *plaintext, int len)
 {
-	Openssl_ctx_ctr* ctx = (Openssl_ctx_ctr*)td->context;	
-	int iteration;
-	int numberOfIterations =  ((float)len / (float)td->algo_block_size);
-	for (iteration = 0; iteration < numberOfIterations; ++iteration) {
-		if (len - iteration*td->algo_block_size < td->algo_block_size) {
-			memset(ctx->padded_input, 0, td->algo_block_size);
-			memcpy(ctx->padded_input, plaintext, len - iteration*td->algo_block_size);
-			AES_ctr128_encrypt(((const u8*)ctx->padded_input), ctx->block, td->algo_block_size, &(ctx->enc_key), ctx->c_counter, ctx->enc_counter, &ctx->c_counter_pos);
-			memcpy(plaintext, ctx->block, len - iteration*td->algo_block_size);
-		}
-		else {
-			AES_ctr128_encrypt(((const u8*)plaintext) + iteration*td->algo_block_size, ctx->block, td->algo_block_size, &(ctx->enc_key), ctx->c_counter, ctx->enc_counter, &ctx->c_counter_pos);
-			memcpy((u8*)plaintext + iteration*td->algo_block_size, ctx->block, td->algo_block_size);
-		}
-		
-	}
-	return GF_OK;
+	return gf_crypt_crypt_openssl_ctr(td, plaintext, len, CRYPT);
 }
 
  GF_Err gf_crypt_decrypt_openssl_ctr(GF_Crypt* td, u8 *ciphertext, int len)
 {
-	return gf_crypt_encrypt_openssl_ctr(td, ciphertext, len);
+	return gf_crypt_crypt_openssl_ctr(td, ciphertext, len, DECRYPT);
 }
 
 
