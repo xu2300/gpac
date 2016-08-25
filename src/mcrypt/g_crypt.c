@@ -48,6 +48,7 @@ void gf_crypt_close(GF_Crypt *td)
 	if (!td || !td->keyword_given) return;
 	gf_free(td->keyword_given);
 	td->keyword_given = NULL;
+	td->_deinit_crypt(td);
 	gf_free(td->context);
 	gf_free(td);
 }
