@@ -117,6 +117,9 @@ struct __dash_client
 	/*mutex for MPD updates and group access*/
 	GF_Mutex *dash_mutex;
 
+  
+  //thread for log buffer information
+  GF_Thread *dash_buffer;
 	/* one of the above state*/
 	GF_DASH_STATE dash_state;
 	Bool mpd_stop_request;
@@ -337,7 +340,7 @@ struct _dash_srd_desc
 
 void drm_decrypt(unsigned char * data, unsigned long dataSize, const char * decryptMethod, const char * keyfileURL, const unsigned char * keyIV);
 
-
+static u32 getBuffer(void *par);
 
 static const char *gf_dash_get_mime_type(GF_MPD_SubRepresentation *subrep, GF_MPD_Representation *rep, GF_MPD_AdaptationSet *set)
 {
@@ -2484,6 +2487,30 @@ static GF_Err dash_do_rate_monitor_default(GF_DashClient *dash, GF_DASH_Group *g
 	return GF_OK;
 }
 
+
+static u32 getBuffer(void *par){
+  GF_DashClient *dash = (GF_DashClient *) par;
+    GF_DASH_Group *group =  gf_list_get(dash->groups, 0) ;
+     u32 re = 0;
+    while(true)
+    {
+      sleep(1);
+      u32 buffer_ms = 0;
+      u32 cache_ms = 0;
+      u32 total = 0;
+      dash->dash_io->on_dash_event(dash->dash_io, GF_DASH_EVENT_CODEC_STAT_QUERY, gf_list_find(dash->groups, group), GF_OK);
+		  buffer_ms = group->buffer_occupancy_ms;
+      u32 i =0;
+      for (i=0; i < group->nb_cached_segments; i++) {
+			  cache_ms += group->cached[i].duration;
+		  }
+      total  = cache_ms+buffer_ms;
+   	  GF_LOG(GF_LOG_INFO, GF_LOG_DASH, ("[DASH] total is %d ms \n, buffer is %d ms\n, cache is %d ms\n ", total,buffer_ms,cache_ms));
+    }
+    return re;
+}
+
+
 static u32 dash_do_rate_adaptation_legacy_rate(GF_DashClient *dash, GF_DASH_Group *group, GF_DASH_Group *base_group,
 												u32 dl_rate, Double speed, Double max_available_speed, Bool force_lower_complexity,
 												GF_MPD_Representation *rep, Bool go_up_bitrate)
@@ -2514,6 +2541,9 @@ static u32 dash_do_rate_adaptation_legacy_rate(GF_DashClient *dash, GF_DASH_Grou
 		if (arep->playback.prev_max_available_speed && (speed > arep->playback.prev_max_available_speed)) {
 			continue;
 		}
+    
+      GF_LOG(GF_LOG_INFO, GF_LOG_DASH, ("[DASH] rate_dl_rate rate is %d \n", dl_rate));
+ GF_LOG(GF_LOG_INFO, GF_LOG_DASH, ("[DASH] rate_arep->bandwidth is %d \n", arep->bandwidth));
 		/* Only try to switch to a representation, if download rate is greater than its bitrate */
 		if (dl_rate >= arep->bandwidth) {
 
@@ -2563,7 +2593,7 @@ static u32 dash_do_rate_adaptation_legacy_rate(GF_DashClient *dash, GF_DASH_Grou
 						}
 					}
 					else {
-						/*don't be agressive, try to switch to lowest bitrate above our current rep*/
+						/*don't be agressive, try to switch to lowest bitrate above our current rep
 						if (new_rep->bandwidth <= rep->bandwidth) {
 							new_rep = arep;
 							new_index = k;
@@ -2571,7 +2601,20 @@ static u32 dash_do_rate_adaptation_legacy_rate(GF_DashClient *dash, GF_DASH_Grou
 						else if ((arep->bandwidth < new_rep->bandwidth) && (arep->bandwidth > rep->bandwidth)) {
 							new_rep = arep;
 							new_index = k;
+						}*/
+
+            if (arep->bandwidth > new_rep->bandwidth) {
+							if (new_rep->bandwidth > rep->bandwidth) {
+								nb_inter_rep++;
+							}
+							new_rep = arep;
+							new_index = k;
 						}
+						else if (arep->bandwidth > rep->bandwidth) {
+							nb_inter_rep++;
+						}
+              GF_LOG(GF_LOG_INFO, GF_LOG_DASH, ("[DASH] true_new_index  is %d \n", new_index ));
+
 					}
 				}
 				else {
@@ -2581,6 +2624,8 @@ static u32 dash_do_rate_adaptation_legacy_rate(GF_DashClient *dash, GF_DASH_Grou
 						new_rep = arep;
 						new_index = k;
 					}
+
+            GF_LOG(GF_LOG_INFO, GF_LOG_DASH, ("[DASH] false_new_index  is %d \n", new_index ));
 				}
 			}
 		}
@@ -2604,7 +2649,7 @@ static u32 dash_do_rate_adaptation_legacy_rate(GF_DashClient *dash, GF_DASH_Grou
 			}
 		}
 	}
-
+   GF_LOG(GF_LOG_INFO, GF_LOG_DASH, ("[DASH] final new index is %d, active_rep_index is \n", new_index, group->active_rep_index ));
 	return new_index;
 }
 
@@ -2624,6 +2669,7 @@ static u32 dash_do_rate_adaptation_legacy_buffer(GF_DashClient *dash, GF_DASH_Gr
 	if (rep->bandwidth < dl_rate) {
 		go_up_bitrate = GF_TRUE;
 	}
+ GF_LOG(GF_LOG_INFO, GF_LOG_DASH, ("[DASH] rep->bandwidth is %d, dl_rate is %d \n", rep->bandwidth, dl_rate ));
 
 	/* clamp download bitrate to the lowest representation rate, to allow choosing it */
 	if (dl_rate < group->min_representation_bitrate) {
@@ -2674,9 +2720,13 @@ static u32 dash_do_rate_adaptation_legacy_buffer(GF_DashClient *dash, GF_DASH_Gr
 			GF_LOG(GF_LOG_DEBUG, GF_LOG_DASH, ("[DASH] AS#%d bitrate %d bps buffer max %d current %d refill since last %d - steady\n", 1 + gf_list_find(group->period->adaptation_sets, group->adaptation_set), rep->bandwidth, group->buffer_max_ms, group->buffer_occupancy_ms, occ));
 		}
 	}
-
+    GF_LOG(GF_LOG_INFO, GF_LOG_DASH, ("[DASH] buf_high_threshold is %d \n", buf_high_threshold));
+     GF_LOG(GF_LOG_INFO, GF_LOG_DASH, ("[DASH] buf_low_threshold is %d \n", buf_low_threshold));
 	/* Unless the switching has been turned off (e.g. middle buffer range),
 	   we apply rate-based adaptation */
+
+        GF_LOG(GF_LOG_INFO, GF_LOG_DASH, ("[DASH] group->buffer_min_ms  is %d \n", group->buffer_min_ms ));  
+   GF_LOG(GF_LOG_INFO, GF_LOG_DASH, ("[DASH] group->buffer_max_ms  is %d \n", group->buffer_max_ms ));
 	if (do_switch) {
 		new_index = dash_do_rate_adaptation_legacy_rate(dash, group, base_group, dl_rate, speed, max_available_speed, force_lower_complexity, rep, go_up_bitrate);
 	}
@@ -5996,7 +6046,7 @@ GF_Err gf_dash_open(GF_DashClient *dash, const char *manifest_url)
 
 	dash->mpd_stop_request = 0;
 	e = gf_th_run(dash->dash_thread, dash_main_thread_proc, dash);
-
+  e = gf_th_run(dash->dash_buffer, getBuffer,  dash );
 	return e;
 exit:
 	dash->dash_io->del(dash->dash_io, dash->mpd_dnload);
@@ -6069,6 +6119,7 @@ GF_DashClient *gf_dash_new(GF_DASHFileIO *dash_io, u32 max_cache_duration, u32 a
 	dash->probe_times_before_switch = 1;
 	dash->dash_thread = gf_th_new("DashClientMainThread");
 	dash->dash_mutex = gf_mx_new("DashClientMainMutex");
+  dash->dash_buffer =  gf_th_new("dashbuffer");
 	//FIXME: mime type for segments MUST be mp2t, webvtt or a Packed Audio file (like AAC)
 	dash->mimeTypeForM3U8Segments = gf_strdup( "video/mp2t" );
 
