@@ -22,7 +22,7 @@
  *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
  *
  */
-
+#include <stdbool.h>
 #include <gpac/thread.h>
 #include <gpac/network.h>
 #include <gpac/dash.h>
@@ -2669,7 +2669,7 @@ static u32 dash_do_rate_adaptation_legacy_buffer(GF_DashClient *dash, GF_DASH_Gr
 	if (rep->bandwidth < dl_rate) {
 		go_up_bitrate = GF_TRUE;
 	}
- GF_LOG(GF_LOG_INFO, GF_LOG_DASH, ("[DASH] rep->bandwidth is %d, dl_rate is %d \n", rep->bandwidth, dl_rate ));
+ GF_LOG(GF_LOG_INFO, GF_LOG_DASH, ("[DASH]group->min_representation_bitrate is %d, dl_rate is %d \n", group->min_representation_bitrate, dl_rate ));
 
 	/* clamp download bitrate to the lowest representation rate, to allow choosing it */
 	if (dl_rate < group->min_representation_bitrate) {
@@ -2717,11 +2717,14 @@ static u32 dash_do_rate_adaptation_legacy_buffer(GF_DashClient *dash, GF_DASH_Gr
 		//don't do anything in the middle range of the buffer or if refill not fast enough
 		else {
 			do_switch = GF_FALSE;
-			GF_LOG(GF_LOG_DEBUG, GF_LOG_DASH, ("[DASH] AS#%d bitrate %d bps buffer max %d current %d refill since last %d - steady\n", 1 + gf_list_find(group->period->adaptation_sets, group->adaptation_set), rep->bandwidth, group->buffer_max_ms, group->buffer_occupancy_ms, occ));
+			GF_LOG(GF_LOG_DEBUG, GF_LOG_DASH, ("[DASH] AS#%d bitrate %d bps buffer max %d current %d refill since last %d - steady, target_rate is %d\n", 1 + gf_list_find(group->period->adaptation_sets, group->adaptation_set), rep->bandwidth, group->buffer_max_ms, group->buffer_occupancy_ms, occ, dl_rate));
 		}
-	}
-    GF_LOG(GF_LOG_INFO, GF_LOG_DASH, ("[DASH] buf_high_threshold is %d \n", buf_high_threshold));
+
+ GF_LOG(GF_LOG_INFO, GF_LOG_DASH, ("[DASH] buf_high_threshold is %d \n", buf_high_threshold));
      GF_LOG(GF_LOG_INFO, GF_LOG_DASH, ("[DASH] buf_low_threshold is %d \n", buf_low_threshold));
+
+
+	}
 	/* Unless the switching has been turned off (e.g. middle buffer range),
 	   we apply rate-based adaptation */
 
@@ -3041,6 +3044,8 @@ static GF_Err gf_dash_download_init_segment(GF_DashClient *dash, GF_DASH_Group *
 	group->max_bitrate = 0;
 	group->min_bitrate = (u32)-1;
 	/*use persistent connection for segment downloads*/
+
+		GF_LOG(GF_LOG_DEBUG, GF_LOG_DASH, ("3048 \n"));  
 	e = gf_dash_download_resource(dash, &(group->segment_download), base_init_url, start_range, end_range, 1, group);
 
 	if ((e==GF_OK) && group->force_switch_bandwidth && !dash->auto_switch_count) {
@@ -3072,6 +3077,7 @@ static GF_Err gf_dash_download_init_segment(GF_DashClient *dash, GF_DASH_Group *
 		GF_LOG(GF_LOG_WARNING, GF_LOG_DASH, ("Download of first segment failed... retrying with second one : %s\n", base_init_url));
 		nb_segment_read = 2;
 		/*use persistent connection for segment downloads*/
+		GF_LOG(GF_LOG_DEBUG, GF_LOG_DASH, ("3080 \n"));      
 		e = gf_dash_download_resource(dash, &(group->segment_download), base_init_url, 0, 0, 1, group);
 	} /* end of 404 */
 
@@ -4921,8 +4927,10 @@ static DownloadGroupStatus dash_download_group_download(GF_DashClient *dash, GF_
 
 		/*use persistent connection for segment downloads*/
 		if (use_byterange) {
+      GF_LOG(GF_LOG_DEBUG, GF_LOG_DASH, ("4930 \n"));    
 			e = gf_dash_download_resource(dash, &(base_group->segment_download), new_base_seg_url, start_range, end_range, 1, base_group);
 		} else {
+      GF_LOG(GF_LOG_DEBUG, GF_LOG_DASH, ("4933 \n"));          
 			e = gf_dash_download_resource(dash, &(base_group->segment_download), new_base_seg_url, 0, 0, 1, base_group);
 		}
 
