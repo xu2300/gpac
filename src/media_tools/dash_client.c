@@ -2689,7 +2689,7 @@ static u32 dash_do_rate_adaptation_legacy_buffer(GF_DashClient *dash, GF_DASH_Gr
 		else {
 			buf_high_threshold = 2 * group->buffer_max_ms / 3;
 		}
-		buf_low_threshold = (group->current_downloaded_segment_duration && (group->buffer_min_ms>10)) ? group->buffer_min_ms : (u32)group->current_downloaded_segment_duration;
+		buf_low_threshold = (group->current_downloaded_segment_duration && (group->buffer_min_ms>10)) ? group->buffer_min_ms : (u32)group->current_downloaded_segment_duration + 1000;
 		if (buf_low_threshold > group->buffer_max_ms) buf_low_threshold = 1 * group->buffer_max_ms / 3;
 
 		//compute how much we managed to refill (current state minus previous state)
@@ -2704,7 +2704,7 @@ static u32 dash_do_rate_adaptation_legacy_buffer(GF_DashClient *dash, GF_DASH_Gr
 				dl_rate = group->min_representation_bitrate;
 			} 
 			else {
-				dl_rate = (rep->bandwidth > 10) ? rep->bandwidth - 10 : 1;
+			  //dl_rate = (rep->bandwidth > 10) ? rep->bandwidth - 10 : 1;
 			}
 			go_up_bitrate = GF_FALSE;
 			GF_LOG(GF_LOG_DEBUG, GF_LOG_DASH, ("[DASH] AS#%d bitrate %d bps buffer max %d current %d refill since last %d - running low, switching down, target rate %d\n", 1 + gf_list_find(group->period->adaptation_sets, group->adaptation_set), rep->bandwidth, group->buffer_max_ms, group->buffer_occupancy_ms, occ, dl_rate));
@@ -2802,7 +2802,8 @@ static void dash_do_rate_adaptation(GF_DashClient *dash, GF_DASH_Group *group)
 	speed = dash->speed;
 	if (speed<0) speed = -speed;
 	dl_rate = (u32)  (8*group->bytes_per_sec / speed);
-
+   GF_LOG(GF_LOG_INFO, GF_LOG_DASH, ("[DASH] dl_rate1 is %d \n", dl_rate ));
+  
 	/* Get the active representation in the AdaptationSet */
 	rep = gf_list_get(group->adaptation_set->representations, group->active_rep_index);
 
