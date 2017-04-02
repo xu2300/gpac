@@ -194,6 +194,9 @@ typedef enum
 /*this structure Group is the implementation of the adaptationSet element of the MPD.*/
 struct __dash_group
 {
+  u32 history_index;  
+  u32 dl_history[3];
+
 	GF_DashClient *dash;
 
 	/*pointer to adaptation set*/
@@ -203,7 +206,7 @@ struct __dash_group
 
 	/*active representation index in adaptation_set->representations*/
 	u32 active_rep_index;
-
+    
 	u32 prev_active_rep_index;
 
 	Bool timeline_setup;
@@ -2645,7 +2648,7 @@ static u32 dash_do_rate_adaptation_legacy_rate(GF_DashClient *dash, GF_DASH_Grou
 				new_rep->playback.probe_switch_count = 0;
 			}
 			else {
-				new_index = group->active_rep_index;
+				//new_index = group->active_rep_index;
 			}
 		}
 	}
@@ -2684,12 +2687,12 @@ static u32 dash_do_rate_adaptation_legacy_buffer(GF_DashClient *dash, GF_DASH_Gr
 		s32 occ;
 
 		if (group->current_downloaded_segment_duration && (group->buffer_max_ms > group->current_downloaded_segment_duration)) {
-			buf_high_threshold = group->buffer_max_ms - (u32)group->current_downloaded_segment_duration;
+			buf_high_threshold = group->buffer_max_ms + (u32)group->current_downloaded_segment_duration;
 		} 
 		else {
 			buf_high_threshold = 2 * group->buffer_max_ms / 3;
 		}
-		buf_low_threshold = (group->current_downloaded_segment_duration && (group->buffer_min_ms>10)) ? group->buffer_min_ms : (u32)group->current_downloaded_segment_duration + 1000;
+		buf_low_threshold = (group->current_downloaded_segment_duration && (group->buffer_min_ms>10)) ? group->buffer_min_ms : (u32)group->current_downloaded_segment_duration + 500;
 		if (buf_low_threshold > group->buffer_max_ms) buf_low_threshold = 1 * group->buffer_max_ms / 3;
 
 		//compute how much we managed to refill (current state minus previous state)
@@ -2704,20 +2707,29 @@ static u32 dash_do_rate_adaptation_legacy_buffer(GF_DashClient *dash, GF_DASH_Gr
 				dl_rate = group->min_representation_bitrate;
 			} 
 			else {
+				dl_rate = group->min_representation_bitrate;        
 			  //dl_rate = (rep->bandwidth > 10) ? rep->bandwidth - 10 : 1;
 			}
 			go_up_bitrate = GF_FALSE;
 			GF_LOG(GF_LOG_DEBUG, GF_LOG_DASH, ("[DASH] AS#%d bitrate %d bps buffer max %d current %d refill since last %d - running low, switching down, target rate %d\n", 1 + gf_list_find(group->period->adaptation_sets, group->adaptation_set), rep->bandwidth, group->buffer_max_ms, group->buffer_occupancy_ms, occ, dl_rate));
 		}
 		//switch up if above max threshold and buffer refill is fast enough
-		else if ((occ>0) && (group->buffer_occupancy_ms > buf_high_threshold)) {
+		else if (group->buffer_occupancy_ms > buf_high_threshold) {
 			GF_LOG(GF_LOG_DEBUG, GF_LOG_DASH, ("[DASH] AS#%d bitrate %d bps buffer max %d current %d refill since last %d - running high, will try to switch up, target rate %d\n", 1 + gf_list_find(group->period->adaptation_sets, group->adaptation_set), rep->bandwidth, group->buffer_max_ms, group->buffer_occupancy_ms, occ, dl_rate));
-			go_up_bitrate = GF_TRUE;
+      if(go_up_bitrate == GF_FALSE) dl_rate = rep->bandwidth;
+      else {
+        int num = 0;
+        if( group->dl_history[0] !=0) num++;if( group->dl_history[1] !=0) num++;if( group->dl_history[2] !=0) num++;
+        dl_rate = (group->dl_history[0]+ group->dl_history[1]+  group->dl_history[2])/num;
+      }			
+      go_up_bitrate = GF_TRUE;
 		}
 		//don't do anything in the middle range of the buffer or if refill not fast enough
 		else {
-			do_switch = GF_FALSE;
-			GF_LOG(GF_LOG_DEBUG, GF_LOG_DASH, ("[DASH] AS#%d bitrate %d bps buffer max %d current %d refill since last %d - steady, target_rate is %d\n", 1 + gf_list_find(group->period->adaptation_sets, group->adaptation_set), rep->bandwidth, group->buffer_max_ms, group->buffer_occupancy_ms, occ, dl_rate));
+      int num = 0;
+      if( group->dl_history[0] !=0) num++;if( group->dl_history[1] !=0) num++;if( group->dl_history[2] !=0) num++;
+      dl_rate = (group->dl_history[0]+ group->dl_history[1]+  group->dl_history[2])/num;
+      GF_LOG(GF_LOG_DEBUG, GF_LOG_DASH, ("[DASH] AS#%d bitrate %d bps buffer max %d current %d refill since last %d - steady, target_rate is %d\n", 1 + gf_list_find(group->period->adaptation_sets, group->adaptation_set), rep->bandwidth, group->buffer_max_ms, group->buffer_occupancy_ms, occ, dl_rate));
 		}
 
  GF_LOG(GF_LOG_INFO, GF_LOG_DASH, ("[DASH] buf_high_threshold is %d \n", buf_high_threshold));
@@ -2758,6 +2770,7 @@ static u32 dash_do_rate_adaptation_test(GF_DashClient *dash, GF_DASH_Group *grou
 	return dash_do_rate_adaptation_legacy_rate(dash, group, base_group, dl_rate, speed, max_available_speed, force_lower_complexity, rep, go_up_bitrate);
 }
 
+
 /* This function is called each time a new segment has been downloaded */
 static void dash_do_rate_adaptation(GF_DashClient *dash, GF_DASH_Group *group)
 {
@@ -2797,12 +2810,25 @@ static void dash_do_rate_adaptation(GF_DashClient *dash, GF_DASH_Group *group)
 		base_group = base_group->depend_on_group;
 	}
 
+
+  
 	/* adjust the download rate according to the playback speed
 	   All adaptation algorithms should use this value */
 	speed = dash->speed;
 	if (speed<0) speed = -speed;
 	dl_rate = (u32)  (8*group->bytes_per_sec / speed);
    GF_LOG(GF_LOG_INFO, GF_LOG_DASH, ("[DASH] dl_rate1 is %d \n", dl_rate ));
+
+
+
+  //get the history download information
+  group->history_index = (group->history_index +1) % 3;  
+  group->dl_history[group->history_index] = dl_rate;
+  int history_dl_index =0;
+  for(history_dl_index =0; history_dl_index<3; history_dl_index++){
+   GF_LOG(GF_LOG_INFO, GF_LOG_DASH, ("[DASH] group->dl_history is %d \n", group->dl_history[history_dl_index]));  
+  }
+
   
 	/* Get the active representation in the AdaptationSet */
 	rep = gf_list_get(group->adaptation_set->representations, group->active_rep_index);
@@ -5263,7 +5289,7 @@ static void dash_global_rate_adaptation(GF_DashClient *dash, Bool for_postponed_
 		if (force_rep_idx) {
 			rep = gf_list_get(group->adaptation_set->representations, group->target_new_rep);
 			//add 100 bytes/sec to make sure we select the target one
-			group->bytes_per_sec = 100 + rep->bandwidth / 8;
+		//	group->bytes_per_sec = 100 + rep->bandwidth / 8;
 		}
 		//decrease by quality level
 		else if (dash->tile_rate_decrease) {
@@ -5369,7 +5395,9 @@ restart_period:
 	gf_mx_p(dash->dash_mutex);
 	dash->dash_state = GF_DASH_STATE_CONNECTING;
 	gf_mx_v(dash->dash_mutex);
-
+ 
+  GF_DASH_Group *group = gf_list_get(dash->groups, 0);
+  group->history_index=0;    
 
 	/*ask the user to connect to desired groups*/
 	e = dash->dash_io->on_dash_event(dash->dash_io, GF_DASH_EVENT_CREATE_PLAYBACK, -1, GF_OK);
